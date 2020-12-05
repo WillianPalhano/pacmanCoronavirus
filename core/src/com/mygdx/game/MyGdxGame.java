@@ -11,13 +11,21 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 public class MyGdxGame extends ApplicationAdapter {
 	SpriteBatch batch;
 	BitmapFont font;
 	Sound soundIn, soundOut;
 	Music music;
 	Texture personTexture;
-	Personagem personagem;
+	Ator principal;
+	Random rand = new Random();
+
+	List<Inimigo> inimigos = new ArrayList<Inimigo>();
+
 	int w, h;
 	float x, y;
 	public static final int SPEED = 10;
@@ -27,26 +35,21 @@ public class MyGdxGame extends ApplicationAdapter {
 		batch = new SpriteBatch();
 		w = Gdx.graphics.getWidth();
 		h = Gdx.graphics.getHeight();
-		System.out.println("Width e Height:" + Gdx.graphics.getWidth() + " " + Gdx.graphics.getHeight());
+
 		personTexture = new Texture("sphere.png");
-		personagem = new Personagem(this, personTexture,
+		principal = new Personagem(this, personTexture,
 				w / 2f - w / 2f,
 				h / 2f - h / 2f
 		);
-		//Musicas
-		font = new BitmapFont(
-				Gdx.files.internal("verdana.fnt"),
-				Gdx.files.internal("verdana.png"), false);
-//		soundIn = Gdx.audio.newSound(Gdx.files.internal("in.wav"));
-//		soundOut = Gdx.audio.newSound(Gdx.files.internal("out.wav"));
-//		music = Gdx.audio.newMusic(Gdx.files.internal("otomata_music.ogg"));
-//		soundIn.play();
-//		music.setLooping(true);
-//		music.play();
+
+		for (int i = 0; i < 5; i++){
+			inimigos.add(new Inimigo(this, personTexture));
+		}
 	}
 
 	private void execute () {
-		personagem.execute();
+		principal.execute();
+		for (Inimigo ini : inimigos) ini.execute();
 
 		if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
 			Gdx.app.exit();
@@ -66,7 +69,8 @@ public class MyGdxGame extends ApplicationAdapter {
 		execute();
 		Gdx.gl.glClearColor(0, 0.5f, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		personagem.draw(batch);
+		principal.draw(batch);
+		for (Inimigo ini : inimigos) ini.draw(batch);
 	}
 
 	public static float clamp(float val, float min, float max) {
