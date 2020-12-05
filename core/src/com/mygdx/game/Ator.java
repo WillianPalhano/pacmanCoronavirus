@@ -5,11 +5,13 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Intersector;
 
 public class Ator {
 
     Sprite person;
     MyGdxGame game;
+    boolean morto = false;
 
     public Ator(MyGdxGame game, Texture t, float x, float y){
         person = new Sprite(t);
@@ -27,6 +29,11 @@ public class Ator {
         batch.begin();
         person.draw(batch);
         batch.end();
+    }
+
+    boolean colisao(Ator outro){
+        if(this == outro) return false;
+        return Intersector.overlaps(person.getBoundingRectangle(), outro.person.getBoundingRectangle());
     }
 
 }

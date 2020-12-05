@@ -18,13 +18,15 @@ import java.util.Random;
 public class MyGdxGame extends ApplicationAdapter {
 	SpriteBatch batch;
 	BitmapFont font;
-	Sound soundIn, soundOut;
-	Music music;
 	Texture personTexture;
-	Ator principal;
 	Random rand = new Random();
+	int contadorInimigos = 0;
+	int maxInimigos = 2;
+	int placar = 0;
+	String status = "";
 
-	List<Inimigo> inimigos = new ArrayList<Inimigo>();
+	List<Ator> inimigos = new ArrayList<>();
+	List<Tiro> news = new ArrayList<>();
 
 	int w, h;
 	float x, y;
@@ -35,33 +37,43 @@ public class MyGdxGame extends ApplicationAdapter {
 		batch = new SpriteBatch();
 		w = Gdx.graphics.getWidth();
 		h = Gdx.graphics.getHeight();
-
+		font = new BitmapFont(
+				Gdx.files.internal("verdana.fnt"),
+				Gdx.files.internal("verdana.png"), false);
 		personTexture = new Texture("sphere.png");
-		principal = new Personagem(this, personTexture,
+		inimigos.add(new Personagem(this, personTexture,
 				w / 2f - w / 2f,
 				h / 2f - h / 2f
-		);
-
-		for (int i = 0; i < 5; i++){
-			inimigos.add(new Inimigo(this, personTexture));
-		}
+		));
 	}
 
 	private void execute () {
-		principal.execute();
-		for (Inimigo ini : inimigos) ini.execute();
-
+		for (Ator ini : inimigos) ini.execute();
 		if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
 			Gdx.app.exit();
 		}
-//		else if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-//			if (music.isPlaying()) {
-//				music.stop();
-//			} else {
-//				music.play();
-//			}
-//			soundOut.play();
-//		}
+		criarInimigos();
+		limpar();
+	}
+
+	void criarInimigos(){
+		if (contadorInimigos < maxInimigos){
+			inimigos.add(new Inimigo(this, personTexture));
+			contadorInimigos++;
+			System.out.println("Contador / maximo: " + contadorInimigos + " / " + maxInimigos);
+		}
+	}
+
+	void limpar(){
+		List<Ator> aux = inimigos;
+		inimigos = new ArrayList<Ator>();
+		for (Ator i: aux) if (!i.morto) inimigos.add(i);
+		inimigos.addAll(news);
+		news.clear();
+	}
+
+	void atirar(float x, float y, float direction){
+		news.add(new Tiro(this, personTexture,x , y, direction));
 	}
 
 	@Override
@@ -69,8 +81,11 @@ public class MyGdxGame extends ApplicationAdapter {
 		execute();
 		Gdx.gl.glClearColor(0, 0.5f, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		principal.draw(batch);
-		for (Inimigo ini : inimigos) ini.draw(batch);
+		batch.begin();
+		font.draw(batch, "Placar: " + placar, 1, h + 1);
+		font.draw(batch, status, 300, h + 1);
+		batch.end();
+		for (Ator ini : inimigos) ini.draw(batch);
 	}
 
 	public static float clamp(float val, float min, float max) {
@@ -84,8 +99,5 @@ public class MyGdxGame extends ApplicationAdapter {
 		batch.dispose();
 		personTexture.dispose();
 		font.dispose();
-		soundIn.dispose();
-		soundOut.dispose();
-		music.dispose();
 	}
 }
